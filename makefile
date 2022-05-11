@@ -1,5 +1,4 @@
-ASM_FILES = opt/bootloader/bootSect.bin \
-			opt/bootloader/kernel.bin
+ASM_FILES = opt/bootloader/bootSect.bin
 
 opt/%.bin: src/%.asm
 	@mkdir -p $(@D)

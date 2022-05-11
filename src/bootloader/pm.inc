@@ -1,4 +1,4 @@
-%include 'src/bootloader/gdt.asm'
+%include 'src/bootloader/gdt.inc'
 [ bits 16]
 switch_to_pm:
     cli ; We must switch of interrupts until we have
@@ -21,4 +21,15 @@ init_pm:
     mov gs, ax
     mov ebp, 0x90000 ; Update our stack position so it is right
     mov esp, ebp ; at the top of the free space.
+
+    ; Set cursor values for printing
+    xor eax, eax                ; Clear EAX for the instructions below
+    mov al, [0x450]             ; Byte at address 0x450 = last BIOS column position
+    mov [cur_col], eax          ; Copy to current column
+    mov al, [0x451]             ; Byte at address 0x451 = last BIOS row position
+    mov [cur_row], eax          ; Copy to current row
+
+    mov ax, [0x44a]             ; Word at address 0x44a = # of columns (screen width)
+    mov [screen_width], eax     ; Copy to screen width
+
     call BEGIN_PM ; Finally , call some well - known label

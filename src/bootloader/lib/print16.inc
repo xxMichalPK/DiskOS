@@ -4,19 +4,19 @@ get_cur:
 	int 0x10
 	ret
 
-print_string:
+print16:
 	mov ah,0x0E
-	next:
+	.next:
 		mov al,[si]
 		or al,al
-		jz done
+		jz .done
 		int 0x10
 		inc si
-		jmp next
-	done:
+		jmp .next
+	.done:
 		ret
 
-print_color_string:
+printc16:
 	mov bp, si
 	mov bh, 0
 	mov ah, 0x13
