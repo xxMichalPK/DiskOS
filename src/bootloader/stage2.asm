@@ -1,13 +1,9 @@
 [bits 16]
 [org 0x7c00]
-STAGE2 equ 0x1000
+KERNEL_OFFSET equ 0x2000
 
-xor ax, ax             ; Ensure data & extra segments are 0 to start, can help
-mov es, ax             ; with booting on hardware
-mov ds, ax
-
+mov dl, [0x1900]        ; Get boot drive from saved address
 mov [BOOT_DRIVE], dl    ; Save the boot drive number
-mov [0x1900], dl
 
 mov bp, 0x9000 ; Set -up the stack.
 mov sp, bp
@@ -89,5 +85,4 @@ OK_MSG: db '[', 0x07, ' ', 0x00, 'O', 0x02, 'K', 0x02, ' ', 0x00, ']', 0x07, ' '
 ERR_MSG: db '[', 0x07, ' ', 0x00, 'E', 0x04, 'R', 0x04, 'R', 0x04, ' ', 0x00, ']', 0x07, ' ', 0x00
     .len: dw $ - ERR_MSG - 8
 
-times 510 - ($-$$) db 0
-dw 0xAA55
+times 4*512 - ($-$$) db 0
