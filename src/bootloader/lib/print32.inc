@@ -154,3 +154,20 @@ printOK32:
 OK1: db '[ ', 0
 OK2: db 'OK', 0
 OK3: db ' ] ', 0
+
+printERR32:
+    mov eax, ERR1
+    call print32
+
+    mov ah, 0x04
+    call setColor
+    mov eax, ERR2
+    call printc32
+
+    mov eax, ERR3
+    call print32
+    ret
+
+ERR1: db '[ ', 0
+ERR2: db 'ERR', 0
+ERR3: db ' ] ', 0

@@ -1,4 +1,5 @@
-%define SECTORS 2
+%define SECTORS 5
+%include 'src/bootloader/sizes.inc'
 
 [bits 16]
 [org 0x7c00]
@@ -8,11 +9,6 @@ mov es, ax             ; with booting on hardware
 mov ds, ax
 
 mov [BOOT_DRIVE], dl    ; Save the boot drive number
-
-cli
-mov bp, 0x9000 ; Set -up the stack.
-mov sp, bp
-sti
 
 mov ah, 0x00
 mov al, 0x03
@@ -64,15 +60,34 @@ STAGE2:
     mov si, OK_MSG
     mov cx, [OK_MSG.len]
     call printc16
-
     mov si, STAGE2MSG
     call print16
 
     call enableA20
 
+    mov si, OK_MSG
+    mov cx, [OK_MSG.len]
+    call printc16
+    mov si, KERNELLOADINGMSG
+    call print16
+
+    call load_kernel
+
+    mov si, OK_MSG
+    mov cx, [OK_MSG.len]
+    call printc16
+    mov si, SETVBEMSG
+    call print16
+
+    jmp input_gfx_values
+    jmp StartPM ; If error in setting up VBE switch to 32bit anyway
+
+StartPM:
     call switch_to_pm
     jmp $
 
+%include 'src/bootloader/VESA.inc'
+%include 'src/bootloader/input.inc'
 %include 'src/bootloader/lib/print32.inc'
 %include 'src/bootloader/pm.inc'
 
@@ -91,18 +106,44 @@ enableA20:
 
     ret
 
+load_kernel:
+    ;; set up ES:BX memory address/segment:offset to load sector(s) into
+    mov bx, KERNEL_OFFSET              ; load sector to memory address of STAGE2
+
+    ;; Set up disk read
+    mov dl, [BOOT_DRIVE]        ; drive saved in BOOT_DRIVE
+    mov ch, 0x00                ; cylinder 0
+    mov dh, 0x00                ; head 0
+    mov cl, SECTORS + 2         ; starting sector to read from disk
+
+    mov al, KERNEL_SECTORS                ; # of sectors to read
+    call read_disk
+    ret
+
+
+KERNEL_OFFSET equ 0x1000
+KERNELLOADINGMSG: db 'Loading kernel into memory...', 0x0A, 0x0D, 0
 STAGE2MSG: db 'Loaded 2nd stage bootloader', 0x0A, 0x0D, 0
+SETVBEMSG: db 'Showing VBE menu...', 0x0A, 0x0D, 0
 A20OK:     db 'Enabled A20 Line', 0x0A, 0x0D, 0
 
 [BITS 32]
 BEGIN_PM:
-    call printOK32
-
-    mov eax, PMMSG
+    call printERR32
+    mov eax, ERR32
     call print32
+
+    call printERR32
+    mov ah, 0x0C
+    call setColor
+    mov eax, ERR32r
+    call printc32
+
+    call KERNEL_OFFSET
 
     jmp $
 
-PMMSG:  db 'Landed in 32-bit protected mode', 0x0A, 0x0D, 0
+ERR32: db 'If you can read this message something went wrong!', 0x0A, 0x0D, 0
+ERR32r: db 'REBOOT YOUR COMPUTER NOW!', 0
 
 times (SECTORS + 1)*512 - ($-$$) db 0

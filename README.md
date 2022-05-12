@@ -8,13 +8,15 @@ DiskOS is a simple 32bit [maybe 64bit] operating system created for a school pro
 :heavy_check_mark: | A20 Line  
 :heavy_check_mark: | 32bit Protected Mode  
 :heavy_check_mark: | Printing in pMode using assembly language
-:x: | Loading kernel
+:heavy_check_mark: | Loading kernel
+:heavy_check_mark: | Automatically setting needed sectors to load by the makefile
+:heavy_check_mark: | VESA support
+:heavy_check_mark: | Drawing shapes
 :x: | Higher half kernel
 :x: | Paging
 :x: | Memory manager
-:x: | FAT32 support
+:x: | FAT32/EXT2 support
 :x: | Other file system support
-:x: | VESA support
 ## How to Build and Run
 ### Requirements
 * gcc
