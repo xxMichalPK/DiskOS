@@ -79,8 +79,21 @@ class VBE {
         VBE();
         void PlotPixel(uint32_t x, uint32_t y, uint32_t color);
 		void LineDraw(Point start, Point end, uint32_t color);
+
 		void TriangleDraw(Point vertex0, Point vertex1, Point vertex2, uint32_t color);
 		void TriangleFill(Point p0, Point p1, Point p2, uint32_t color);
+
+		void RectangleDraw(Point top_left, Point bottom_right, uint32_t color);
+		void RectangleFill(Point top_left, Point bottom_right, uint32_t color);
+
+		void CircleDraw(Point center, uint16_t radius, uint32_t color);
+		void CircleFill(Point center, uint16_t radius, uint32_t color);
+
+		void EllipseDraw(Point center, uint16_t radiusX, uint16_t radiusY, uint32_t color);
+		void EllipseFill(Point center, uint16_t radiusX, uint16_t radiusY, uint32_t color);
+
+		void PolygonDraw(Point vertex_array[], uint8_t num_vertices, uint32_t color);
+		void PolygonFill(Point vertex_array[], uint8_t num_vertices, uint32_t color);
 
 		void FillBounds(uint16_t X, uint16_t Y, uint32_t fill_color, uint32_t boundary_color);
 		

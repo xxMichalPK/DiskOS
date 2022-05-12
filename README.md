@@ -26,4 +26,7 @@ DiskOS is a simple 32bit [maybe 64bit] operating system created for a school pro
 To build and run DiskOS go into its main folder("DiskOS") and run "make".  
 DiskOS will be built and run automatically.
 ## Screenshots
-![Screenshoot 1 - Loading process](./screenshots/scr1.png)
+### Booting process
+![Screenshoot 1 - Booting process](./screenshots/scr1.png)
+### Graphics test
+![Screenshoot 2 - Graphics test](./screenshots/scr2.png)

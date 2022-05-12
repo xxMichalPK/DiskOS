@@ -1,6 +1,40 @@
 [BITS 16]
+configVBE:
+    mov al, 0
+    mov ah, 0x86
+    mov dx, 10
+    mov cx, dx
+    int 0x15
+
+    mov ah, 0x01
+    int 0x16
+    cmp al, 'c' ; Check if 'c' pressed
+    jne .bootDefaults   ; NO? Boot with defaults
+
+    jmp .confirm
+
+    .bootDefaults:
+        mov word [width], 1024
+        mov word [height], 768
+        mov word [bpp], 32
+        jmp set_up_vbe
+
+    .confirm:
+        mov si, OK_MSG
+        mov cx, [OK_MSG.len]
+        call printc16
+        mov si, press_ent_str
+        call print16
+        .getENTER:
+            mov ah, 0x00
+            int 0x16
+            cmp al, 0x0D            ; Check if enter pressed
+            jne .getENTER    ; If no - repeat
+        jmp input_gfx_values
+
 ;; User input x/y resolution and bpp values
 input_gfx_values:
+    xor ax, ax
     xor ecx, ecx
     cmp word [width], 0  ;; Already has values set, skip
     jne set_up_vbe
@@ -20,7 +54,7 @@ input_gfx_values:
 
     mov si, choose_gfx_string
     call print16
-
+    
     .setX:
         mov si, width_string
         call print16
@@ -64,6 +98,7 @@ input_gfx_values:
 
 ;; Set up vbe info structure
 set_up_vbe:
+    sti
     xor ax, ax
     mov es, ax  ; Reset ES to 0
 
@@ -170,6 +205,7 @@ end_of_modes:
 
 ;; DATA AREA FOR VESA Support
 ;; String constants and length values
+press_ent_str: db 'Press [ENTER] to start the configuration!', 0x0A, 0x0D, 0
 choose_gfx_string: db 218,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196, 'Input graphics mode values', 196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,191, 0
 width_string: db 0x0A, 0x0D, '   Width [1920]: ', 0
 height_string: db 0x0A, 0x0D, '   Height [1080]: ', 0

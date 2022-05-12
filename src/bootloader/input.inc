@@ -8,10 +8,10 @@ input_number:
     .next_digit:
         mov ah, 0
         int 0x16         ; BIOS get keystroke, AH = scancode, AL = ascii char
-        mov ah, 0Eh
+        mov ah, 0x0E
         int 0x10         ; BIOS teletype output
 
-        cmp al, 08h
+        cmp al, 0x08
         jne .check_enter
         mov ax, bx
         xor dx, dx
@@ -20,7 +20,7 @@ input_number:
         jmp .next_digit
 
         .check_enter:
-            cmp al, 0Dh     ; Enter key
+            cmp al, 0x0D     ; Enter key
             je .done
             sub al, '0'     ; Convert ascii number to integer
             mov ah, 0       ; Isolate AL value

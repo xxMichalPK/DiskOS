@@ -79,7 +79,7 @@ STAGE2:
     mov si, SETVBEMSG
     call print16
 
-    jmp input_gfx_values
+    jmp configVBE
     jmp StartPM ; If error in setting up VBE switch to 32bit anyway
 
 StartPM:
@@ -124,7 +124,7 @@ load_kernel:
 KERNEL_OFFSET equ 0x1000
 KERNELLOADINGMSG: db 'Loading kernel into memory...', 0x0A, 0x0D, 0
 STAGE2MSG: db 'Loaded 2nd stage bootloader', 0x0A, 0x0D, 0
-SETVBEMSG: db 'Showing VBE menu...', 0x0A, 0x0D, 0
+SETVBEMSG: db 'Configuring VBE - press "c" for manual configuration...', 0x0A, 0x0D, 0
 A20OK:     db 'Enabled A20 Line', 0x0A, 0x0D, 0
 
 [BITS 32]
