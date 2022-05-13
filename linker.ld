@@ -1,19 +1,28 @@
 ENTRY("loader")
 OUTPUT_FORMAT("binary")
 
+phys = 0x00003000;
+
 SECTIONS
 {
-    .text 0x10000 :
-    {
-        *(kernel_entry); 
-        *(.text*);
-    }
-    .rodata :
-    {
-        *(.rodata*);
-    }
-    .bss :
-    {
-        *(.bss*);
-    }
+   . = phys;
+
+   .text BLOCK(4K) : ALIGN(4K) {
+      *(.kernel_entry)
+      *(.text)
+   }
+   
+   .rodata BLOCK(4K) : ALIGN(4K) {
+      *(.rodata)
+   }
+   
+   .data BLOCK(4K) : ALIGN(4K) {
+      *(.data)
+   }
+   
+   .bss BLOCK(4K) : ALIGN(4K) {
+      *(.bss)
+   }
+   
+   end = .;
 }

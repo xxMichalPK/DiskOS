@@ -1,9 +1,11 @@
-CC_FLAGS = -m32 -Iinclude -ffreestanding -fno-PIC
+CC_FLAGS = -m32 -Iinclude -ffreestanding -fno-PIC -Wall -O2
 
-BOOT_FILES = opt/bootloader/bootSect.bin
+BOOT_FILES = opt/bootloader/bootSect.bin \
+			opt/bootloader/termu18n.bin
 
 KERNEL_FILES = opt/loader.o \
 				opt/kernel.o \
+				opt/kernelUtils.o \
 				opt/graphics/vbe.o
 
 opt/%.bin: src/%.asm

@@ -1,9 +1,14 @@
+#include <kernelUtils.h>
 #include <graphics/vbe.h>
 #include <memory/memory.h>
 
+#define FONT_ADDR 0x1000
+
+VBE* vbe;
 VBE::VBE() {
     vbe_mode_info_t* tmpModeInfo = (vbe_mode_info_t*)VBE_MODE_INFO_ADDRESS;
     gfx_mode = tmpModeInfo;
+    sysFont = (ASM_FONT*)0x1000;
 }
 
 void VBE::PlotPixel(uint32_t x, uint32_t y, uint32_t color) {
@@ -250,7 +255,72 @@ void VBE::FillBounds(uint16_t X, uint16_t Y, uint32_t fill_color, uint32_t bound
         FillBounds(X, Y + 1, fill_color, boundary_color);
         FillBounds(X, Y - 1, fill_color, boundary_color);
     }
-} 
+}
+
+
+void VBE::ColorsChange(uint32_t fg, uint32_t bg) {
+    fgColor = fg;
+    bgColor = bg;
+}
+
+
+void VBE::PutChar(char ch, uint32_t xOff, uint32_t yOff)
+{
+    uint8_t bpp = (gfx_mode->bits_per_pixel+1) / 8;                         // Get # of bytes per pixel, add 1 to fix 15bpp modes
+    uint8_t bytes_per_char_line = ((sysFont->font_width - 1) / 8) + 1;
+    uint8_t char_size = bytes_per_char_line * sysFont->font_height;
+    uint8_t* font_char = (uint8_t *)(0x1000 + ((ch * char_size) - char_size));
+    yOff = (yOff * sysFont->font_height);
+    xOff = (xOff * sysFont->font_width);
+
+    if (ch == '\n') {
+        Cursor.Y++;
+        return;
+    } 
+    if (ch == '\r') {
+        Cursor.X = 0;
+        return;
+    }
+
+    uint8_t *framebuffer = (uint8_t *)(gfx_mode->physical_base_pointer + ((yOff*gfx_mode->x_resolution + xOff) * bpp));
+    for (uint32_t line = 0; line < sysFont->font_height; line++) { 
+        uint32_t num_px_drawn = 0;
+        for (int8_t byte = bytes_per_char_line - 1; byte >= 0; byte--) {
+            for (int8_t bit = 7; bit >= 0; bit--) {
+                // If bit is set draw text color pixel, if not draw background color
+                if (font_char[line * bytes_per_char_line + byte] & (1 << bit)) {
+                    *((uint32_t *)framebuffer) = fgColor;
+                } else {
+                    *((uint32_t *)framebuffer) = bgColor;
+                }
+                framebuffer += bpp;  // Next pixel position
+                num_px_drawn++;
+                // If done drawing all pixels in current line of char, stop and go on
+                if (num_px_drawn == sysFont->font_width) {
+                    num_px_drawn = 0;
+                    break;
+                }
+            }
+        }
+        framebuffer += (gfx_mode->x_resolution - sysFont->font_width) * bpp;
+    }
+    Cursor.X++;
+}
+void VBE::PutChar(char ch) {
+    PutChar(ch, Cursor.X, Cursor.Y);
+}
+void VBE::PrintString(const char* str, uint32_t x, uint32_t y) {
+    Cursor.X = x;
+    Cursor.Y = y;
+    while (*str != '\0') {
+        PutChar(*str);
+        x++;
+        UNUSED(*str++);
+    }
+}
+void VBE::PrintString(const char* str) {
+    PrintString(str, Cursor.X, Cursor.Y);
+}
 
 void VBE::ClearScreen(uint32_t color) {
     memset((void*)(gfx_mode->physical_base_pointer), color, gfx_mode->x_resolution * gfx_mode->y_resolution * ((gfx_mode->bits_per_pixel+1) / 8));

@@ -1,4 +1,5 @@
 %define SECTORS 5
+%define FONT_SIZE 9
 %include 'src/bootloader/sizes.inc'
 
 [bits 16]
@@ -65,17 +66,12 @@ STAGE2:
 
     call enableA20
 
-    mov si, OK_MSG
-    mov cx, [OK_MSG.len]
-    call printc16
     mov si, KERNELLOADINGMSG
     call print16
 
+    call load_font
     call load_kernel
 
-    mov si, OK_MSG
-    mov cx, [OK_MSG.len]
-    call printc16
     mov si, SETVBEMSG
     call print16
 
@@ -106,9 +102,8 @@ enableA20:
 
     ret
 
-load_kernel:
-    ;; set up ES:BX memory address/segment:offset to load sector(s) into
-    mov bx, KERNEL_OFFSET              ; load sector to memory address of STAGE2
+load_font:
+    mov bx, FONT_OFFSET              ; load sector to memory address of STAGE2
 
     ;; Set up disk read
     mov dl, [BOOT_DRIVE]        ; drive saved in BOOT_DRIVE
@@ -116,15 +111,29 @@ load_kernel:
     mov dh, 0x00                ; head 0
     mov cl, SECTORS + 2         ; starting sector to read from disk
 
+    mov al, FONT_SIZE           ; # of sectors to read
+    call read_disk
+    ret
+
+load_kernel:
+    ;; set up ES:BX memory address/segment:offset to load sector(s) into
+    mov bx, KERNEL_OFFSET              ; load sector to memory address of STAGE2
+
+    ;; Set up disk read
+    mov dl, [BOOT_DRIVE]            ; drive saved in BOOT_DRIVE
+    mov ch, 0x00                    ; cylinder 0
+    mov dh, 0x00                    ; head 0
+    mov cl, SECTORS + FONT_SIZE + 2 ; starting sector to read from disk
+
     mov al, KERNEL_SECTORS                ; # of sectors to read
     call read_disk
     ret
 
-
-KERNEL_OFFSET equ 0x1000
-KERNELLOADINGMSG: db 'Loading kernel into memory...', 0x0A, 0x0D, 0
+FONT_OFFSET equ 0x1000
+KERNEL_OFFSET equ 0x3000
+KERNELLOADINGMSG: db '[ *** ] Loading kernel and other components into memory...', 0x0A, 0x0D, 0
 STAGE2MSG: db 'Loaded 2nd stage bootloader', 0x0A, 0x0D, 0
-SETVBEMSG: db 'Configuring VBE - press "c" for manual configuration...', 0x0A, 0x0D, 0
+SETVBEMSG: db '[ *** ] Configuring VBE - press "c" for manual configuration...', 0x0A, 0x0D, 0
 A20OK:     db 'Enabled A20 Line', 0x0A, 0x0D, 0
 
 [BITS 32]

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <math/math.h>
 
 #define VBE_MODE_INFO_ADDRESS 0x9000
 #define USER_GFX_INFO_ADDRESS 0x9200
@@ -68,9 +69,11 @@ typedef struct {
 
 } __attribute__ ((packed)) vbe_mode_info_t;
 
-typedef struct point {
-    int32_t X, Y;
-} Point;
+struct ASM_FONT {
+	uint8_t font_width;
+	uint8_t font_height;
+	uint16_t* chars;
+};
 
 class VBE {
     private:
@@ -96,7 +99,16 @@ class VBE {
 		void PolygonFill(Point vertex_array[], uint8_t num_vertices, uint32_t color);
 
 		void FillBounds(uint16_t X, uint16_t Y, uint32_t fill_color, uint32_t boundary_color);
-		
+
+		void ColorsChange(uint32_t fg, uint32_t bg);
+
+		ASM_FONT* sysFont;
+		void PutChar(char ch, uint32_t xOff, uint32_t yOff);
+		void PutChar(char ch);
+		void PrintString(const char* str, uint32_t x, uint32_t y);
+		void PrintString(const char* str);
 		
 		void ClearScreen(uint32_t color);
 };
+
+extern VBE* vbe;
