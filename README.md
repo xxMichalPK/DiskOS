@@ -33,5 +33,6 @@ DiskOS will be built and run automatically.
 ## Screenshots
 ### Booting process
 ![Screenshoot 1 - Booting process](./screenshots/scr1.png)
+![Screenshoot 2 - Initializing Kernel](./screenshots/scr3.png)
 ### Graphics test
-![Screenshoot 2 - Graphics test](./screenshots/scr2.png)
+![Screenshoot 3 - Graphics test](./screenshots/scr2.png)
