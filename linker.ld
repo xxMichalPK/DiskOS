@@ -1,14 +1,13 @@
 ENTRY("loader")
 OUTPUT_FORMAT("binary")
 
-phys = 0x00003000;
+phys = 0x00009000;
 
 SECTIONS
 {
    . = phys;
 
    .text BLOCK(4K) : ALIGN(4K) {
-      *(.kernel_entry)
       *(.text)
    }
    

@@ -23,10 +23,10 @@ init_pm:
     mov esp, ebp ; at the top of the free space.
 
     ;; Set up VBE mode info block in memory to be easier to work with
-    ; mov esi, mode_info_block
-    ; mov edi, 0x9000
-    ; mov ecx, 64                 ; Mode info block is 256 bytes / 4 = # of dbl words
-    ; rep movsd
+    mov esi, mode_info_block
+    mov edi, 0x5000
+    mov ecx, 64                 ; Mode info block is 256 bytes / 4 = # of dbl words
+    rep movsd
 
     ; Set cursor values for printing
     xor eax, eax                ; Clear EAX for the instructions below

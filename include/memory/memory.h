@@ -2,6 +2,13 @@
 #include <stdint.h>
 #define UNUSED(x) (void)(x)
 
+typedef struct SMAP_entry {
+    uint64_t base_address;
+    uint64_t length;
+    uint32_t type;
+    uint32_t acpi;
+} __attribute__ ((packed)) SMAP_entry_t;
+
 static inline void *memset(void *s, char c, unsigned int count)
 {
    int d0, d1;
@@ -13,17 +20,6 @@ static inline void *memset(void *s, char c, unsigned int count)
    :"memory");
    return s;
 }
-
-/*static inline void *memcpy(void *to, void* from, uint32_t n) {
-    __asm__ __volatile__(
-    "movl (%1), %0 \n\t"
-    "movl %0, (%2) \n\t"
-    : "=r" (n) 
-    : "r"(from),"r"(to)
-    : "memory"
-    );
-    return to;
-}*/
 
 static inline void *memcpy(void *dst, void const *src, uint64_t len) {
     unsigned char *pcDst = (unsigned char *)dst;

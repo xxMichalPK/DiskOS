@@ -8,7 +8,7 @@ VBE* vbe;
 VBE::VBE() {
     vbe_mode_info_t* tmpModeInfo = (vbe_mode_info_t*)VBE_MODE_INFO_ADDRESS;
     gfx_mode = tmpModeInfo;
-    sysFont = (ASM_FONT*)0x1000;
+    sysFont = (ASM_FONT*)FONT_ADDR;
 }
 
 void VBE::PlotPixel(uint32_t x, uint32_t y, uint32_t color) {
@@ -279,6 +279,10 @@ void VBE::PutChar(char ch, uint32_t xOff, uint32_t yOff)
     } 
     if (ch == '\r') {
         Cursor.X = 0;
+        return;
+    }
+    if (ch == '\t') {
+        Cursor.X += 4;
         return;
     }
 

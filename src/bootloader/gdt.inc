@@ -3,7 +3,6 @@ gdt_start:
         dd 0x0 ; ’dd ’ means define double word ( i.e. 4 bytes )
         dd 0x0
     gdt_code: ; the code segment descriptor
-
         dw 0xffff ; Limit ( bits 0 -15)
         dw 0x0 ; Base ( bits 0 -15)
         db 0x0 ; Base ( bits 16 -23)

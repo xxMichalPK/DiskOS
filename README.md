@@ -1,5 +1,6 @@
 # DiskOS
-DiskOS is a simple 32bit [maybe 64bit] operating system created for a school project. Its first purpose was to communicate with ATA hard drives in order to send commands to them but in the future I plan on adding more functionalities to it, like paging, file system support and maybe even a GUI.
+DiskOS is a simple 32bit [maybe 64bit] operating system created for a school project. Its first purpose was to communicate with ATA hard drives in order to send commands to them but in the future I plan on adding more functionalities to it, like paging, file system support and maybe even a GUI.  
+DiskOS is mostly based on Queso Fuego's AmateurOS - https://github.com/queso-fuego/amateuros
 ## Functionalities
 |State|Functionality
 :------------ | :-------------
@@ -13,9 +14,12 @@ DiskOS is a simple 32bit [maybe 64bit] operating system created for a school pro
 :heavy_check_mark: | VESA support
 :heavy_check_mark: | Drawing shapes
 :heavy_check_mark: | printf implementation
+:heavy_check_mark: | Paging
+:heavy_check_mark: | Memory manager
+:x: | Interrupt handling
 :x: | Higher half kernel
-:x: | Paging
-:x: | Memory manager
+:x: | Keyboard driver
+:x: | Mouse driver
 :x: | FAT32/EXT2 support
 :x: | Other file system support
 ## How to Build and Run

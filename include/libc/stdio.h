@@ -8,12 +8,10 @@
 #include <stdarg.h>
 #include <graphics/vbe.h>
 
-#define putc(ch) (putchar)(ch)
-#define puts(str) (putstring)(str)
-static inline void putchar(char ch) {
+static inline void putc(char ch) {
     vbe->PutChar(ch);
 }
-static inline void putstring(const char* str) {
+static inline void puts(const char* str) {
     vbe->PrintString(str);
 }
 
@@ -86,7 +84,7 @@ char* __int_str(long i, char b[], int base, bool plusSignIfNeeded, bool spaceSig
 }
  
 void displayCharacter(char c, int* a) {
-    putchar(c);
+    putc(c);
     *a += 1;
 }
  
@@ -489,5 +487,4 @@ __attribute__ ((format (printf, 1, 2))) int printf (const char* format, ...)
     int i = vprintf (format, list);
     va_end (list);
     return i;
- 
 }

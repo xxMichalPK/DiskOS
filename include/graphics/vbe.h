@@ -2,9 +2,7 @@
 
 #include <stdint.h>
 #include <math/math.h>
-
-#define VBE_MODE_INFO_ADDRESS 0x9000
-#define USER_GFX_INFO_ADDRESS 0x9200
+#include <vars/addresses.h>
 
 #define abs(a) ((a > 0) ? a : -a)
 #define ROUND(a) ((int)(a + 0.5))
@@ -76,10 +74,9 @@ struct ASM_FONT {
 };
 
 class VBE {
-    private:
-        vbe_mode_info_t *gfx_mode;
     public:
         VBE();
+		vbe_mode_info_t *gfx_mode;
         void PlotPixel(uint32_t x, uint32_t y, uint32_t color);
 		void LineDraw(Point start, Point end, uint32_t color);
 

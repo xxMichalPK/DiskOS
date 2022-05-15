@@ -1,11 +1,14 @@
 CC_FLAGS = -m32 -Iinclude -ffreestanding -fno-PIC -Wall -O2
 
 BOOT_FILES = opt/bootloader/bootSect.bin \
-			opt/bootloader/termu18n.bin
+			opt/bootloader/termu16n.bin
 
 KERNEL_FILES = opt/loader.o \
 				opt/kernel.o \
 				opt/kernelUtils.o \
+				opt/memory/pmm.o \
+				opt/memory/vmm.o \
+				opt/memory/malloc.o \
 				opt/graphics/vbe.o
 
 opt/%.bin: src/%.asm

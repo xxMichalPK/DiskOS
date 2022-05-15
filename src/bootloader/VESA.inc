@@ -85,11 +85,11 @@ input_gfx_values:
     jmp set_up_vbe
 
     .setDefaultX:
-        mov word [width], 1920
+        mov word [width], 1024
         jmp .setY
     
     .setDefaultY:
-        mov word [height], 1080
+        mov word [height], 768
         jmp .setBPP
     
     .setDefaultBPP:
@@ -158,11 +158,6 @@ set_up_vbe:
     cmp ax, 4Fh
     jne error
 
-    ; Set VBE info to address 0x9000
-    mov esi, mode_info_block
-    mov edi, 0x9000
-    mov ecx, 64                 ; Mode info block is 256 bytes / 4 = # of dbl words
-    rep movsd
     jmp StartPM    ; Move on to set up GDT & 32bit protected mode
 
 .next_mode:
@@ -198,8 +193,8 @@ end_of_modes:
     .check_no:
         cmp al, 'y'
         jne .try_again
-        mov word [width], 1920      ; Take default values
-        mov word [height], 1080
+        mov word [width], 1024      ; Take default values
+        mov word [height], 768
         mov byte [bpp], 32 
         jmp set_up_vbe
 
@@ -207,10 +202,10 @@ end_of_modes:
 ;; String constants and length values
 press_ent_str: db 'Press [ENTER] to start the configuration!', 0x0A, 0x0D, 0
 choose_gfx_string: db 218,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196, 'Input graphics mode values', 196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,196,191, 0
-width_string: db 0x0A, 0x0D, '   Width [1920]: ', 0
-height_string: db 0x0A, 0x0D, '   Height [1080]: ', 0
+width_string: db 0x0A, 0x0D, '   Width [1024]: ', 0
+height_string: db 0x0A, 0x0D, '   Height [768]: ', 0
 bpp_string: db 0x0A, 0x0D, '   BPP [32]: ', 0
-mode_not_found_string: db 0x0A, 0x0D, '   Video mode not found!', 0x0A, 0x0D, '   Use defaults - 1920x1080 32BPP? [y/n]: ', 0
+mode_not_found_string: db 0x0A, 0x0D, '   Video mode not found!', 0x0A, 0x0D, '   Use defaults - 1024x768 32BPP? [y/n]: ', 0
 
 ;; VBE Variables
 width: dw 0
