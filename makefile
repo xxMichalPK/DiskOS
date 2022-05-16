@@ -31,6 +31,8 @@ run: link
 
 link: kernel.bin $(BOOT_FILES)
 	cat $(BOOT_FILES) kernel.bin > OS.bin
+	dd if=/dev/zero of=sys.img bs=512 count=93750
+	mkdosfs -F 32 sys.img
 
 kernel.bin: $(KERNEL_FILES)
 	ld -melf_i386 -Tlinker.ld $^ -o $@
@@ -38,4 +40,4 @@ kernel.bin: $(KERNEL_FILES)
 	echo "%define KERNEL_SECTORS" "$$(printf '0x%02X' $$((size / 512)))" > src/bootloader/sizes.inc;
 
 clean:
-	rm -rf *.bin *.o opt/
+	rm -rf *.bin *.o *.img opt/

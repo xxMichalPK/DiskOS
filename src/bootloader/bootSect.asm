@@ -4,12 +4,44 @@
 
 [bits 16]
 [org 0x7c00]
+jmp short main
+nop
 
+BPB_OEM_ID                  db "MSDOS5.0"   ;Must be 8 bytes long
+BPB_BYTES_PER_SECTOR        dw 0x0200       ;Bytes Per sector, Usually 512
+BPB_SECTORS_PER_CLUSTER     db 0x00         ;Sectors Per Cluster
+BPB_RESERVED_SECTORS        dw 0x0000       ;Number of Reserved Sectors, Including Boot Record, Logical start of FAT
+BPB_TOTAL_FATS              db 0x02         ;Number of FAT tables, almost always 2
+BPB_DIRECTORY_ENTRIES       dw 0x0000       ;Number of Directory Entries
+BPB_TOTAL_SECTORS           dw 0x0000       ;Total sectors in the logical volume, if 0 it means there is over 65535
+BPB_MEDIA_TYPE              db 0x00         ;Media Descriptor Type
+BPB_SECTORS_PER_FAT         dw 0x0000       ;Sectors per FAT,FAT12/FAT16 only
+BPB_SECTORS_PER_TRACK       dw 0x0000       ;Sectors per track
+BPB_TOTAL_HEADS             dw 0x0000       ;Number of heads or sides on the storage media
+BPB_HIDDEN_SECTORS          dd 0x00000000   ;Number of hidden sectors, LBA of beginning of partition
+BPB_LARGE_TOTAL_SECTORS     dd 0x00000000   ;Large amount of sectors on media, set if over 65535
+;Extended Bios Parameter Block(EBPB), used in FAT32             
+EBPB_SECTORS_PER_FAT        dd 0x00000000   ;Sectors per FAT
+EBPB_FLAGS                  dw 0x0000       ;Flags
+EBPB_FAT_VER                dw 0x0000       ;FAT Version number
+EBPB_ROOT_DIR_CLUSTER       dd 0x00000002   ;The cluster number of the root directory, usually 2
+EBPB_FSINFO_LBA             dw 0x0000       ;The Logical LBA of the FSInfo structure
+EBPB_BACKUP_VBR_LBA         dw 0x0000       ;The Logical LBA of the backup boot sector
+EBPB_RESERVED times 12      db 0x00         ;RESERVED, 12 Bytes
+EBPB_DISK_NUM               db 0x00         ;Drive number, value is arbitrary
+EBPB_NT_FLAGS               db 0x00         ;Flags in Windows NT, Reserved
+EBPB_SIGNATURE              db 0x29         ;Signature, must be 0x28 or 0x29
+EBPB_VOLUME_ID              dd 0x00000000   ;VolumeID 'Serial' number, used for tracking volumes between computers
+EBPB_VOLUME_LABEL           db "DISK OS    ";Volume label string, 11 Bytes
+EBPB_SYS_ID                 db "FAT32   "   ;System identifier string, 8 Bytes
+
+main:
 xor ax, ax             ; Ensure data & extra segments are 0 to start, can help
 mov es, ax             ; with booting on hardware
 mov ds, ax
 
 mov [BOOT_DRIVE], dl    ; Save the boot drive number
+mov [EBPB_DISK_NUM], dl
 
 ; Start of setting the stack
 xor ax,ax
