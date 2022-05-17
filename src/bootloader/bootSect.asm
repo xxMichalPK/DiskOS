@@ -44,7 +44,7 @@ xor ax,ax
 cli
 mov ds,ax
 mov ss,ax
-mov esp, 0x9000         ; Setting stack! Do not forget!!!!!!!!!!
+mov esp, 0x7c00         ; Setting stack! Do not forget!!!!!!!!!!
 sti
 ; End of setting the stack
 
@@ -116,8 +116,6 @@ prepareFAT:
 	found_file_to_load:
 		mov ax, word [es:di+0x0F]
 		mov word [CLUSTER], ax
-		;mov ax, word [es:di+0Fh]	; Offset 11 + 15 = 26, contains 1st cluster
-		;mov word [CLUSTER], ax
 
 		mov ax, [BPB_SECTORS_PER_CLUSTER]
 		mov bx, [CLUSTER - 2]
@@ -168,8 +166,7 @@ NOT_FOUND: db "Couldn't find bootable file", 0
 FILENAME: db "STAGE2  BIN"		   	; File Name of Stage2
 BOOT_DRIVE: db 0
 CLUSTER: dw 0
-LOAD_OFFSET equ 0x7F00	            ; Where Stage2 is loaded to
-ENTRY_OFFSET equ 0x0803
+LOAD_OFFSET equ 0x8000	            ; Where Stage2 is loaded to
 
 times 510 - ($-$$) db 0
 dw 0xAA55
