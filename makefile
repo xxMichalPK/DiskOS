@@ -5,12 +5,13 @@ BOOT_FILES = opt/bootloader/bootSect.bin
 2ND_STAGE_FILES = opt/bootloader/stage2.bin
 
 KERNEL_FILES = opt/loader.o \
-				opt/kernel.o \
-				opt/kernelUtils.o \
-				opt/memory/pmm.o \
-				opt/memory/vmm.o \
-				opt/memory/malloc.o \
-				opt/graphics/vbe.o
+				opt/kernel.o
+#				opt/graphics/vbe.o
+#				opt/kernelUtils.o
+#				opt/memory/pmm.o \
+#				opt/memory/vmm.o \
+#				opt/memory/malloc.o \
+#				opt/graphics/vbe.o
 
 opt/%.bin: src/%.asm
 	@mkdir -p $(@D)
