@@ -30,9 +30,17 @@ run: link
 	qemu-system-i386 OS.bin
 
 link: kernel.bin $(BOOT_FILES)
-	cat $(BOOT_FILES) kernel.bin > OS.bin
-	dd if=/dev/zero of=sys.img bs=512 count=93750
-	mkdosfs -F 32 sys.img
+	@cat $(BOOT_FILES) kernel.bin > tmpboot.bin
+	@echo [Creating disk image...]
+	@dd if=/dev/zero of=DiskOS.img bs=512 count=93750
+	@echo [Formatting as FAT32...]
+	@mkdosfs -F 32 DiskOS.img
+	@echo [Copying bootloader to disk image...]
+	@dd if=tmpboot.bin of=DiskOS.img bs=1 count=3 conv=notrunc
+	@dd if=tmpboot.bin of=names.bin bs=1 skip=71 count=19
+	@dd if=tmpboot.bin of=boot.bin bs=512 skip=90 iflag=skip_bytes
+	@dd if=names.bin of=DiskOS.img bs=512 seek=71 oflag=seek_bytes conv=notrunc
+	@dd if=boot.bin of=DiskOS.img bs=512 seek=90 oflag=seek_bytes conv=notrunc
 
 kernel.bin: $(KERNEL_FILES)
 	ld -melf_i386 -Tlinker.ld $^ -o $@
