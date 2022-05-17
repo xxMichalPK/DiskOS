@@ -1,7 +1,8 @@
 CC_FLAGS = -m32 -Iinclude -ffreestanding -fno-PIC -Wall -O2
 
-BOOT_FILES = opt/bootloader/bootSect.bin \
-			opt/bootloader/termu16n.bin
+BOOT_FILES = opt/bootloader/bootSect.bin
+
+2ND_STAGE_FILES = opt/bootloader/stage2.bin
 
 KERNEL_FILES = opt/loader.o \
 				opt/kernel.o \
@@ -29,8 +30,8 @@ opt/%.o: src/%.cpp
 run: link
 	qemu-system-i386 DiskOS.img
 
-link: kernel.bin $(BOOT_FILES)
-	@cat $(BOOT_FILES) kernel.bin > tmpboot.bin
+link: kernel.bin $(BOOT_FILES) $(2ND_STAGE_FILES)
+	@cp $(BOOT_FILES) ./tmpboot.bin
 	@echo [Creating disk image...]
 	@dd if=/dev/zero of=DiskOS.img bs=512 count=93750
 	@echo [Formatting as FAT32...]
@@ -41,6 +42,9 @@ link: kernel.bin $(BOOT_FILES)
 	@dd if=tmpboot.bin of=boot.bin bs=512 skip=90 iflag=skip_bytes
 	@dd if=names.bin of=DiskOS.img bs=512 seek=71 oflag=seek_bytes conv=notrunc
 	@dd if=boot.bin of=DiskOS.img bs=512 seek=90 oflag=seek_bytes conv=notrunc
+	@cp $(2ND_STAGE_FILES) ./stage2.bin
+	@mcopy -i DiskOS.img stage2.bin ::
+	@mcopy -i DiskOS.img kernel.bin ::
 
 kernel.bin: $(KERNEL_FILES)
 	ld -melf_i386 -Tlinker.ld $^ -o $@

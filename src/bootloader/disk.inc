@@ -1,53 +1,48 @@
-[BITS 16]
-read_disk:
-    mov word [cylinder], 0  ; Reset CHS values
-    mov byte [head], 0
-    mov byte [start_sector], 0
+[bits 16]
+;-------------------------------------------------------------------------------
+; DISK ADDRESS PACKET
+dap:
+	db 10h ; Size of Packet, 16B
+	db 0
+dap_sector_count: dw 28 ; Number of Sectors to Read
+dap_offset:				dw 0x1000
+dap_segment:			dw 0
+dap_lba_lo:				dd 0
+dap_lba_hi:				dd 0
+;-------------------------------------------------------------------------------
 
-    cmp al, 63          ; Sector limit (1-63)
-    jle .canRead          ; Sector is <= 63, good to go
-    xor ah, ah
-    mov bl, 63
-    div bl              ; starting_sector / 63, AH = remainder (sector % 63), AL = quotient (sector / 63)
-    cmp ah, 0           ; sector % 63 = 0?
-    jne .cylinder
-    mov ah, 63          ; Yes, reset sector to 63
-    dec al              ; decrement head # (sector / 63)
-    .cylinder:
-    mov [start_sector], ah  ; AH = sector #, AL = head #
-    xor ah, ah
-    mov bl, 16
-    div bl                  ; Head / 16, AH = remainder (head % 16), AL = quotient (head / 16)
-    mov [cylinder], al      ; Cylinder = head / 16
-    mov [head], ah
-    
-
-    .canRead:
-    mov ah, 0x02                ; BIOS int 13h/ah=2 read disk sectors
-    int 0x13                    ; BIOS interrupts for disk functions
-
-    jc .disk_read_err           ; retry if disk read error (carry flag set/ = 1)
-    ret
-
-    .disk_read_err:
-        cmp di, 5
-        je .stop
-        
-        inc di
-        mov si, ERR_MSG
-        mov cx, [ERR_MSG.len]
-        call printc16
-
-        mov si, DISK_ERR_MSG
-        call print16
-        jmp read_disk
-
-        .stop:
-            mov si, ERR_MSG
-            mov cx, [ERR_MSG.len]
-            call printc16
-
-            mov si, FAILUREMSG
-            call print16
-            hlt
-            jmp $
+read_sectors_lba:
+	pusha
+	mov dl, [BOOT_DRIVE]
+	mov ah, 42h ; EXT Read Sectors
+	mov si, dap
+	int 13h ; Read Sectors
+	mov ah, 0xE
+	jc .error
+.success:
+	mov al, 'O'
+	int 0x10
+	popa
+	ret
+.error:
+	; Carry Flag Set
+	mov al, 'E'
+	int 0x10
+	cli
+	jmp $ ; Hang Here
+;-------------------------------------------------------------------------------
+; Convert Cluster Number in AX to LBA Value
+cluster_to_lba:
+	; First Two Clusters always reserved
+	sub ax, 2
+	; Multiply by number of sectors to get our LBA count
+	xor bx, bx
+	mov bl, byte [BPB_SECTORS_PER_CLUSTER]
+	mul bx
+	add ax, word [BPB_RESERVED_SECTORS]
+	; THIS IS NOT PORTABLE.
+	; DO NOT ASSUME THERE ARE TWO FATS BY DEFAULT.
+	add ax, [EBPB_SECTORS_PER_FAT]
+	add ax, [EBPB_SECTORS_PER_FAT]
+	ret
+;-------------------------------------------------------------------------------
