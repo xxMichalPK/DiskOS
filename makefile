@@ -27,7 +27,7 @@ opt/%.o: src/%.cpp
 	@gcc $(CC_FLAGS) -c $^ -o $@
 
 run: link
-	qemu-system-i386 OS.bin
+	qemu-system-i386 DiskOS.img
 
 link: kernel.bin $(BOOT_FILES)
 	@cat $(BOOT_FILES) kernel.bin > tmpboot.bin
