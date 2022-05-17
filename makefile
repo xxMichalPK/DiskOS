@@ -2,7 +2,8 @@ CC_FLAGS = -m32 -Iinclude -ffreestanding -fno-PIC -Wall -O2
 
 BOOT_FILES = opt/bootloader/bootSect.bin
 
-2ND_STAGE_FILES = opt/bootloader/stage2.bin
+2ND_STAGE_FILES = opt/bootloader/stage2.bin \
+				opt/bootloader/testSt.bin
 
 KERNEL_FILES = opt/loader.o \
 				opt/kernel.o \
@@ -42,8 +43,10 @@ link: kernel.bin $(BOOT_FILES) $(2ND_STAGE_FILES)
 	@dd if=tmpboot.bin of=boot.bin bs=512 skip=90 iflag=skip_bytes
 	@dd if=names.bin of=DiskOS.img bs=512 seek=71 oflag=seek_bytes conv=notrunc
 	@dd if=boot.bin of=DiskOS.img bs=512 seek=90 oflag=seek_bytes conv=notrunc
-	@cp $(2ND_STAGE_FILES) ./stage2.bin
+	@cp opt/bootloader/testSt.bin ./testSt.bin
+	@cp opt/bootloader/stage2.bin ./stage2.bin
 	@mcopy -i DiskOS.img stage2.bin ::
+	@mcopy -i DiskOS.img testSt.bin ::
 	@mcopy -i DiskOS.img kernel.bin ::
 
 kernel.bin: $(KERNEL_FILES)

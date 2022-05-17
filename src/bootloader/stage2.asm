@@ -1,3 +1,4 @@
+%define STAGE2_SIZE 5
 [BITS 16]
 [org 0x7f00]
 STAGE2:
@@ -72,4 +73,4 @@ BEGIN_PM:
     call KERNEL_OFFSET
     jmp $
 
-times 5*512 - ($-$$) db 0
+times (STAGE2_SIZE*512) - ($-$$) db 0

@@ -20,13 +20,15 @@ read_sectors_lba:
 	mov ah, 0xE
 	jc .error
 .success:
-	mov al, 'O'
-	int 0x10
 	popa
 	ret
 .error:
 	; Carry Flag Set
 	mov al, 'E'
+	int 0x10
+	mov al, 'R'
+	int 0x10
+	mov al, 'R'
 	int 0x10
 	cli
 	jmp $ ; Hang Here

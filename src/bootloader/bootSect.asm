@@ -78,8 +78,6 @@ prepareFAT:
 	add ax, [BPB_RESERVED_SECTORS]
 	add ax, [BPB_HIDDEN_SECTORS]
 
-	mov [FIRST_DATA_SECTOR], ax
-
 	; Load this sector into the DAP, then read to disk buffer
 	mov [dap_lba_lo], ax
 	mov word [dap_sector_count], 1
@@ -116,39 +114,60 @@ prepareFAT:
 		jmp $
 	
 	found_file_to_load:
-		
+		mov ax, word [es:di+0x0F]
+		mov word [CLUSTER], ax
+		;mov ax, word [es:di+0Fh]	; Offset 11 + 15 = 26, contains 1st cluster
+		;mov word [CLUSTER], ax
 
-	; Get to our Cluster Number
-	add bx, 0x1A
-	mov ax, word [bx]
-	call cluster_to_lba
-	mov [dap_lba_lo], ax
+		mov ax, [BPB_SECTORS_PER_CLUSTER]
+		mov bx, [CLUSTER - 2]
+		mul bx
+		mov dx, ax
+		xor bx, bx
+		; Getting first data sector
+		mov ax, [EBPB_SECTORS_PER_FAT]
+		mov bx, [BPB_TOTAL_FATS]
+		mul bx
+		add ax, [BPB_RESERVED_SECTORS]
+		add ax, [BPB_HIDDEN_SECTORS]
+		add ax, dx
 
-	; Get file size in Bytes
-	mov bx, LOAD_OFFSET
-	add bx, 28
-	mov eax, dword [bx]
-
-	; Divide by 512 to get file size in sectors, aka clusters to load
-	mov bx, 512
-	div bx
-
-	; See if there's an uneven number of bytes. If so, load an extra cluster
-	cmp dx, 0
-	je .part2
-	add ax, 1
-	.part2:
-		mov dl, [BOOT_DRIVE]
-		mov word [dap_sector_count], ax
+		; Load this sector into the DAP, then read to disk buffer
+		mov [dap_lba_lo], ax
+		mov word [dap_sector_count], 1
+		mov bx, LOAD_OFFSET
+		mov word [dap_offset], LOAD_OFFSET
 		call read_sectors_lba
-		jmp loadSTAGE2
+
+		; Get to our Cluster Number
+		mov ax, word [CLUSTER]
+		call cluster_to_lba
+		mov [dap_lba_lo], ax
+
+		; Get file size in Bytes
+		mov bx, LOAD_OFFSET
+		add bx, 28
+		mov eax, dword [bx]
+
+		; Divide by 512 to get file size in sectors, aka clusters to load
+		mov bx, 512
+		div bx
+
+		; See if there's an uneven number of bytes. If so, load an extra cluster
+		cmp dx, 0
+		je .part2
+		add ax, 1
+		.part2:
+			mov dl, [BOOT_DRIVE]
+			mov word [dap_sector_count], ax
+			call read_sectors_lba
+			jmp loadSTAGE2
 
 ; Bootloader Variables
 NOT_FOUND: db "Couldn't find bootable file", 0
-FILENAME: db "MICHAL  BIN"		   	; File Name of Stage2
+FILENAME: db "STAGE2  BIN"		   	; File Name of Stage2
 BOOT_DRIVE: db 0
-CLUSTER: db 0
-FIRST_DATA_SECTOR: dw 0
+CLUSTER: dw 0
 LOAD_OFFSET equ 0x7F00	            ; Where Stage2 is loaded to
 ENTRY_OFFSET equ 0x0803
 

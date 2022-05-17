@@ -1,1 +1,1 @@
-%define KERNEL_SECTORS 0x2E
+%define KERNEL_SECTORS 0x2F
