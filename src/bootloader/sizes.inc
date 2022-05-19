@@ -1,0 +1,2 @@
+%define KERNEL_SECTORS 0x2D
+%define STAGE3_SECTORS 0x2C
