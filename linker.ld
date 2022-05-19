@@ -1,4 +1,3 @@
-ENTRY("loader")
 OUTPUT_FORMAT("binary")
 
 phys = 0x00009000;
@@ -8,6 +7,7 @@ SECTIONS
    . = phys;
 
    .text BLOCK(4K) : ALIGN(4K) {
+      *(.krn_entry)
       *(.text)
    }
    

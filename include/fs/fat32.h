@@ -80,3 +80,4 @@ extern uint32_t FIRST_DATA_SECTOR;
 void FAT_Init();
 void printFiles();
 uint8_t *check_filename(uint8_t *filename, const uint16_t filename_length);
+uint16_t load_file(uint8_t *filename, uint16_t filename_length, uint32_t address, uint8_t *file_ext);

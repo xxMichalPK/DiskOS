@@ -19,7 +19,7 @@ static inline void puts(const char* str) {
 //        OSdev - User:A22347/Printf implementation          //
 //#############################################################
  
-char* __int_str(long i, char b[], int base, bool plusSignIfNeeded, bool spaceSignIfNeeded,
+static char* __int_str(long i, char b[], int base, bool plusSignIfNeeded, bool spaceSignIfNeeded,
                 int paddingNo, bool justify, bool zeroPad) {
  
     char digit[32] = {0};
@@ -83,18 +83,18 @@ char* __int_str(long i, char b[], int base, bool plusSignIfNeeded, bool spaceSig
     return b;
 }
  
-void displayCharacter(char c, int* a) {
+static void displayCharacter(char c, int* a) {
     putc(c);
     *a += 1;
 }
  
-void displayString(const char* c, int* a) {
+static void displayString(const char* c, int* a) {
     for (int i = 0; c[i]; ++i) {
         displayCharacter(c[i], a);
     }
 }
  
-int vprintf (const char* format, va_list list)
+static int vprintf (const char* format, va_list list)
 {
     int chars        = 0;
     char intStrBuffer[256] = {0};
@@ -480,7 +480,7 @@ int vprintf (const char* format, va_list list)
     return chars;
 }
  
-__attribute__ ((format (printf, 1, 2))) int printf (const char* format, ...)
+static __attribute__ ((format (printf, 1, 2))) int printf (const char* format, ...)
 {
     va_list list;
     va_start (list, format);

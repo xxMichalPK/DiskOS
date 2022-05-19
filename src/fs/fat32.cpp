@@ -1,5 +1,6 @@
 #include <fs/fat32.h>
 #include <libc/string.h>
+#include <libc/stdio.h>
 
 FAT32_BPP_t* FAT32_BPB = 0;
 uint32_t FAT_SIZE;
@@ -59,6 +60,20 @@ uint8_t *check_filename(uint8_t *filename, const uint16_t filename_length)
     return (uint8_t*)ptr;
 }
 
+static uint16_t readi16(uint8_t *buff, size_t offset)
+{
+    uint8_t *ubuff = buff + offset;
+    return ubuff[1] << 8 | ubuff[0];
+}
+static uint32_t readi32(uint8_t *buff, size_t offset) {
+    uint8_t *ubuff = buff + offset;
+    return
+        ((ubuff[3] << 24) & 0xFF000000) |
+        ((ubuff[2] << 16) & 0x00FF0000) |
+        ((ubuff[1] << 8) & 0x0000FF00) |
+        (ubuff[0] & 0x000000FF);
+}
+
 // load_file: Read a file from filetable and its sectors into a memory location
 //
 // input 1: File name (address)
@@ -80,11 +95,22 @@ uint16_t load_file(uint8_t *filename, uint16_t filename_length, uint32_t address
 	// Get file type into variable to pass back
     for (uint8_t i = 0; i < 3; i++)
         file_ext[i] = file_ptr[8+i];
+    
+    // Get the cluster in which the file starts
+    uint16_t cluster = readi16(file_ptr, 26);
+
+    // Calculate the first sector of the file
+    uint32_t sector = ((cluster - 2) * FAT32_BPB->BPB_SECTORS_PER_CLUSTER) + FIRST_DATA_SECTOR;
+
+    // Calculate num sectors to load
+    uint32_t size = readi32(file_ptr, 28);
+    if (size % 512 != 0) size = size / 512 + 1;
+    else size = size / 512;
 
     return_code = 1;    // Init return code to 'success'
 
     // Read sectors using ATA PIO
-    rw_sectors(file_ptr[15], file_ptr[14], address, READ_WITH_RETRY);
+    rw_sectors(size, sector, address, READ_WITH_RETRY);
 
     return return_code;	
 }

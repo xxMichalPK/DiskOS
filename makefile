@@ -14,8 +14,7 @@ BOOT_FILES = opt/bootloader/bootSect.bin
 				opt/memory/malloc.o \
 				opt/graphics/vbe.o
 
-KERNEL_FILES = opt/loader.o \
-				opt/kernel.o \
+KERNEL_FILES = 	opt/kernel.o \
 				opt/kernelUtils.o \
 				opt/disk/ata.o \
 				opt/fs/fat32.o \

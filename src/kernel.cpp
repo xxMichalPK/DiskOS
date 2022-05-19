@@ -8,10 +8,18 @@
 
 #include <fs/fat32.h>
 
-extern "C" void kMain(void) {
+extern "C" __attribute__ ((section(".krn_entry"))) void kMain(void) {
     const char* copyMSG = "-- DiskOS v0.1 - Copyright Michal Pazurek 2022 --\n\r"
                           "--   Github:  https://github.com/xxMichalPk/   --\n\r\n\r";
     const char* prompt = "diOS:> ";
+
+    vbe_mode_info_t* test = (vbe_mode_info_t*)0x5000;
+    uint32_t* ptr = (uint32_t*)test->physical_base_pointer;
+    for (int i = 0; i < test->x_resolution * test->y_resolution; i++) {
+        ptr[i] = 0xFF0000FF;
+    }
+
+    initKernel();
 
     // Info for unhandled functions:
     /*puts("[ "); fgColor = 0xFFFF8800; puts("ERR INFO"); fgColor = 0xFFFFFFFF; puts(" ] Interrupts are not supported!\n\r");
@@ -19,7 +27,7 @@ extern "C" void kMain(void) {
     puts("[ "); fgColor = 0xFFFF8800; puts("ERR INFO"); fgColor = 0xFFFFFFFF; puts(" ] No Mouse driver!\n\r");
     puts("[ "); fgColor = 0xFFFF8800; puts("ERR INFO"); fgColor = 0xFFFFFFFF; puts(" ] No Disk driver!\n\r");*/
 
-    FAT32_BPP_t* fat = (FAT32_BPP_t*)0x7c00;
+    /*FAT32_BPP_t* fat = (FAT32_BPP_t*)0x7c00;
     uint32_t oldFG = fgColor;
     fgColor = 0xFFAAAAAA;
     puts("-------- File Allocation Table (FAT32) Info --------\n\r");
@@ -55,7 +63,7 @@ extern "C" void kMain(void) {
     fgColor = oldFG;
     puts("\n\r");
     fgColor = 0xFF22FFAA;
-    puts(copyMSG);
+    puts(copyMSG);*/
     // fgColor = 0xFFFF2050;
     // //puts(prompt);
     // fgColor = 0xFFDDDDDD;

@@ -14,6 +14,7 @@ extern "C" __attribute__ ((section(".st3_entry"))) void st3_main() {
     uint32_t num_SMAP_entries; 
     uint32_t total_memory; 
     SMAP_entry_t *SMAP_entry;
+    uint8_t ext[3];
 
     initKernel();
     puts("[ "); fgColor = 0xFF00FF00; puts("OK"); fgColor = 0xFFFFFFFF; puts(" ] VBE initialized\n\r");
@@ -42,9 +43,7 @@ extern "C" __attribute__ ((section(".st3_entry"))) void st3_main() {
     printPhysicalMemory();
 
     // Load kernel file here!!
-    uint8_t *ptr = check_filename((uint8_t *)"KERNEL  BIN", 11);
-    printf("Found file %sat offset: 0x%x", ptr, ptr);
-    for (;;);
+    load_file((uint8_t*)"KERNEL  BIN", 11, KERNEL_ADDRESS, ext);
     //////////////////////////
 
 
@@ -61,6 +60,21 @@ extern "C" __attribute__ ((section(".st3_entry"))) void st3_main() {
         map_page((void *)fb_start, (void *)fb_start);
 
     deinitialize_memory_region(vbe->gfx_mode->physical_base_pointer, fb_size_in_pages * BLOCK_SIZE);
+
+    // Set physical memory manager variables for kernel to use
+    *(uint32_t *)PHYS_MEM_MAX_BLOCKS  = max_blocks;
+    *(uint32_t *)PHYS_MEM_USED_BLOCKS = used_blocks;
+
+    // Remove lower half kernel mapping 
+    for (uint32_t virt = KERNEL_ADDRESS; virt < 0x400000; virt += PAGE_SIZE)
+        unmap_page((void *)virt);
+
+    // Reload CR3 register to flush TLB to update unmapped pages
+    __asm__ __volatile__ ("movl %CR3, %ECX; movl %ECX, %CR3");
+
+    // Store current page directory for kernel to use
+    *(uint32_t *)CURRENT_PAGE_DIR_ADDRESS = (uint32_t)current_page_directory;
+
     puts("[ "); fgColor = 0xFF00FF00; puts("OK"); fgColor = 0xFFFFFFFF; puts(" ] Vitual Memory Manager initialized\n\r");
 
     printf("Welcome from %s%d bootloader at add%c: 0x%x! Time: %.2f", "Stage", 3, 'r', 0x9000, 10.5867);
