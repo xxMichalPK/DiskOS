@@ -5,23 +5,17 @@ BOOT_FILES = opt/bootloader/bootSect.bin
 2ND_STAGE_FILES = opt/bootloader/stage2.bin \
 				opt/bootloader/termu16n.bin
 
-3RD_STAGE_FILES = opt/stage3.o \
-				opt/kernelUtils.o \
-				opt/disk/ata.o \
-				opt/fs/fat32.o \
-				opt/memory/pmm.o \
-				opt/memory/vmm.o \
-				opt/memory/malloc.o \
-				opt/graphics/vbe.o
+3RD_STAGE_FILES = opt/stage3.o
 
-KERNEL_FILES = 	opt/kernel.o \
-				opt/kernelUtils.o \
-				opt/disk/ata.o \
-				opt/fs/fat32.o \
-				opt/memory/pmm.o \
-				opt/memory/vmm.o \
-				opt/memory/malloc.o \
-				opt/graphics/vbe.o
+KERNEL_FILES = 	opt/kernel.o
+				
+LIB_FILES = opt/kernelUtils.o \
+			opt/disk/ata.o \
+			opt/fs/fat32.o \
+			opt/memory/pmm.o \
+			opt/memory/vmm.o \
+			opt/memory/malloc.o \
+			opt/graphics/vbe.o
 
 opt/%.bin: src/%.asm
 	@mkdir -p $(@D)
@@ -60,16 +54,18 @@ link: kernel.bin stage3.bin $(BOOT_FILES) $(2ND_STAGE_FILES)
 	@mcopy -i DiskOS.img stage3.bin ::
 	@mcopy -i DiskOS.img kernel.bin ::
 
-kernel.bin: $(KERNEL_FILES)
+kernel.bin: $(KERNEL_FILES) libdisk.a
 	ld -melf_i386 -Tlinker.ld $^ -o $@
 	@size=$$(($$(wc -c < kernel.bin)));\
 	echo "%define KERNEL_SECTORS" "$$(printf '0x%02X' $$((size / 512)))" > src/bootloader/sizes.inc;
 
-stage3.bin: $(3RD_STAGE_FILES)
+stage3.bin: $(3RD_STAGE_FILES) libdisk.a
 	ld -melf_i386 -Tstage3.ld $^ -o $@
 	@size=$$(($$(wc -c < stage3.bin)));\
 	echo "%define STAGE3_SECTORS" "$$(printf '0x%02X' $$((size / 512)))" >> src/bootloader/sizes.inc;
 
+libdisk.a: $(LIB_FILES)
+	ar rcs $@ $^
 
 clean:
 	rm -rf *.bin *.o *.img opt/
