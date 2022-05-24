@@ -99,9 +99,9 @@ extern "C" __attribute__ ((section(".st3_entry"))) void st3_main() {
 
     puts("[ "); fgColor = 0xFF00FF00; puts("OK"); fgColor = 0xFFFFFFFF; puts(" ] Vitual Memory Manager initialized\n\r");
 
-    printf("Welcome from %s%d bootloader at add%c: 0x%x! Time: %.2f", "Stage", 3, 'r', 0x9000, 10.5867);
+    puts("[ "); fgColor = 0xFFFF8800; puts("INFO"); fgColor = 0xFFFFFFFF; puts(" ] Starting PMM initialization...\n\r");
 
-    ((void (*)(void))0xC0000000)();
+    ((void (*)(void))0xC0100000)();
     
     for (;;);
 }
@@ -114,8 +114,8 @@ void printPhysicalMemory()
     SMAP_entry_t *SMAP_entry = (SMAP_entry_t *)(MMAP_ADDRESS + 4);
     for (uint32_t i = 0; i < num_entries; i++) {
         printf("[ *** ] Region: 0x%02x", i);
-        printf(": base: 0x%llx", SMAP_entry->base_address);
-        printf(" length: 0x%llx", SMAP_entry->length);
+        printf(": base: 0x%llux", SMAP_entry->base_address);
+        printf(" length: 0x%llux", SMAP_entry->length);
         printf(" type: 0x%x", SMAP_entry->type);
         switch(SMAP_entry->type) {
             case 1:
@@ -138,7 +138,7 @@ void printPhysicalMemory()
         SMAP_entry++;
     }
     SMAP_entry--;
-    printf("[ *** ] Total memory: 0x%llx", (SMAP_entry->base_address + SMAP_entry->length - 1));
+    printf("[ *** ] Total memory: 0x%llux", (SMAP_entry->base_address + SMAP_entry->length - 1));
     printf("\n\r[ *** ] Total 4KB blocks: %x", max_blocks);
     printf("\n\r[ *** ] Used or reserved blocks: %x", used_blocks);
     printf("\n\r[ *** ] Free or available blocks: %x", max_blocks - used_blocks);

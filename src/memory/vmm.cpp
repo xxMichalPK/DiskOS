@@ -167,7 +167,7 @@ bool initialize_virtual_memory_manager(void)
     }
 
     // Map kernel to 3GB+ addresses (higher half kernel)
-    for (uint32_t i = 0, frame = KERNEL_ADDRESS, virt = 0xC0000000; i < 1024; i++, frame += PAGE_SIZE, virt += PAGE_SIZE) {
+    for (uint32_t i = 0, frame = KERNEL_ADDRESS, virt = 0xC0100000; i < 1024; i++, frame += PAGE_SIZE, virt += PAGE_SIZE) {
         // Create new page
         pt_entry page = 0;
         SET_ATTRIBUTE(&page, PTE_PRESENT);
