@@ -10,6 +10,8 @@ BOOT_FILES = opt/bootloader/bootSect.bin
 KERNEL_FILES = 	opt/kernel.o
 				
 LIB_FILES = opt/kernelUtils.o \
+			opt/interrupts/idt.o \
+			opt/interrupts/exceptions.o \
 			opt/disk/ata.o \
 			opt/fs/fat32.o \
 			opt/memory/pmm.o \
@@ -26,6 +28,11 @@ opt/%.o: src/%.asm
 	@mkdir -p $(@D)
 	@echo [Compiling $@]
 	@nasm -felf32 $< -o $@
+
+opt/interrupts/%.o: src/interrupts/%.cpp
+	@mkdir -p $(@D)
+	@echo [Compiling $@]
+	@gcc $(CC_FLAGS) -mgeneral-regs-only -c $^ -o $@
 
 opt/%.o: src/%.cpp
 	@mkdir -p $(@D)
@@ -68,4 +75,4 @@ libdisk.a: $(LIB_FILES)
 	ar rcs $@ $^
 
 clean:
-	rm -rf *.bin *.o *.img opt/
+	rm -rf *.bin *.o *.a *.img opt/

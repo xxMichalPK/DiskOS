@@ -13,13 +13,13 @@ extern "C" __attribute__ ((section(".krn_entry"))) void kMain(void) {
                           "--   Github:  https://github.com/xxMichalPk/   --\n\r\n\r";
     const char* prompt = "diOS:> ";
 
-    initKernel();
-
     vbe_mode_info_t* test = (vbe_mode_info_t*)0x5000;
     uint32_t* ptr = (uint32_t*)test->physical_base_pointer;
     for (int i = 0; i < test->x_resolution * test->y_resolution; i++) {
         ptr[i] = 0xFF0000FF;
     }
+
+    initKernel();
 
     // Info for unhandled functions:
     /*puts("[ "); fgColor = 0xFFFF8800; puts("ERR INFO"); fgColor = 0xFFFFFFFF; puts(" ] Interrupts are not supported!\n\r");

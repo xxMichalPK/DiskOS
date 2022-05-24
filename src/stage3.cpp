@@ -6,6 +6,10 @@
 #include <graphics/vbe.h>
 #include <libc/stdio.h>
 
+#include <interrupts/idt.h>
+#include <interrupts/exceptions.h>
+#include <interrupts/pic.h>
+
 #include <fs/fat32.h>
 
 void printPhysicalMemory();
@@ -41,6 +45,24 @@ extern "C" __attribute__ ((section(".st3_entry"))) void st3_main() {
     deinitialize_memory_region(MMAP_AREA, max_blocks / BLOCKS_PER_BYTE);
     puts("[ "); fgColor = 0xFF00FF00; puts("OK"); fgColor = 0xFFFFFFFF; puts(" ] Physical Memory Manager initialized\n\r");
     printPhysicalMemory();
+
+    idt_init();
+    idt_set_descriptor(0, (void*)div_by_0_handler, TRAP_GATE_FLAGS); // Divide by 0 handler
+    idt_set_descriptor(1, (void*)reserved_int_1_handler, TRAP_GATE_FLAGS); // Int 1 handler (reserved)
+    idt_set_descriptor(3, (void*)breakpoint_handler, TRAP_GATE_FLAGS); // Breakpoint handler
+    idt_set_descriptor(4, (void*)overflow_handler, TRAP_GATE_FLAGS); // Overflow handler
+    idt_set_descriptor(5, (void*)bound_range_handler, TRAP_GATE_FLAGS); // Bound range Exceeded handler
+    idt_set_descriptor(6, (void*)invalid_opcode_handler, TRAP_GATE_FLAGS); // Invalid Opcode handler
+    idt_set_descriptor(7, (void*)device_not_available_handler, TRAP_GATE_FLAGS); // Device not available handler
+    idt_set_descriptor(8, (void*)double_fault_handler, TRAP_GATE_FLAGS); // Double Fault Handler (no return!)
+    idt_set_descriptor(10, (void*)invalid_tss_handler, TRAP_GATE_FLAGS); // Invalid TSS handler
+    idt_set_descriptor(11, (void*)segment_not_present_handler, TRAP_GATE_FLAGS); // Segment not present handler
+    idt_set_descriptor(12, (void*)stack_segment_fault_handler, TRAP_GATE_FLAGS); // Stack segment fault handler
+    idt_set_descriptor(13, (void*)general_protection_fault_handler, TRAP_GATE_FLAGS); // General protection fault handler
+    idt_set_descriptor(14, (void*)page_fault_handler, TRAP_GATE_FLAGS); // General protection fault handler
+
+    disablePIC();
+    remapPIC();
 
     // Load kernel file here!!
     load_file((uint8_t*)"KERNEL  BIN", 11, KERNEL_ADDRESS, ext);
