@@ -5,11 +5,17 @@ virt = 0xC0000000;
 
 SECTIONS
 {
-   . = phys + virt;
+   . = phys;
+
+   . += virt;
 
    .text ALIGN(0x1000) : AT(ADDR(.text)-virt) {
       *(.krn_entry)
       *(.text)
+   }
+
+   .rodata ALIGN(0x1000) : AT(ADDR(.rodata)-virt) {
+      *(.rodata)
    }
    
    .data ALIGN(0x1000) : AT(ADDR(.data)-virt) {
@@ -20,12 +26,9 @@ SECTIONS
 
       *(.data)
    }
-   
-   .rodata ALIGN(0x1000) : AT(ADDR(.rodata)-virt) {
-      *(.rodata)
-   }
 
    .bss ALIGN(0x1000) : AT(ADDR(.bss)-virt) {
+      *(COMMON)
       *(.bss)
    }
 

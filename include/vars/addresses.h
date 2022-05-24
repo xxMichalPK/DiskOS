@@ -1,6 +1,7 @@
 #pragma once
 
 // VBE Address
+#define FONT_ADDR 0x1000
 #define VBE_MODE_INFO_ADDRESS 0x5000
 
 // Paging

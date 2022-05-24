@@ -2,12 +2,9 @@
 #include <graphics/vbe.h>
 #include <memory/memory.h>
 
-#define FONT_ADDR 0x1000
-
 VBE* vbe;
 VBE::VBE() {
-    vbe_mode_info_t* tmpModeInfo = (vbe_mode_info_t*)VBE_MODE_INFO_ADDRESS;
-    gfx_mode = tmpModeInfo;
+    gfx_mode = (vbe_mode_info_t*)VBE_MODE_INFO_ADDRESS;
     sysFont = (ASM_FONT*)FONT_ADDR;
 }
 
@@ -327,5 +324,6 @@ void VBE::PrintString(const char* str) {
 }
 
 void VBE::ClearScreen(uint32_t color) {
-    memset((void*)(gfx_mode->physical_base_pointer), color, gfx_mode->x_resolution * gfx_mode->y_resolution * ((gfx_mode->bits_per_pixel+1) / 8));
+    for (uint32_t i = 0; i < gfx_mode->x_resolution * gfx_mode->y_resolution; i++) 
+        *((uint32_t *)gfx_mode->physical_base_pointer+i) = color;
 }

@@ -1,4 +1,5 @@
-CC_FLAGS = -m32 -Iinclude -ffreestanding -fno-PIC -Wall -O2
+CC_FLAGS = -m32 -Iinclude -ffreestanding -fpie -fno-PIC -Wall -O2 -static-libgcc -lgcc
+GCC-LD_FLAGS = -m32 -ffreestanding -fpie -static -nostartfiles -static-libgcc -lgcc
 
 BOOT_FILES = opt/bootloader/bootSect.bin
 
@@ -62,12 +63,14 @@ link: kernel.bin stage3.bin $(BOOT_FILES) $(2ND_STAGE_FILES)
 	@mcopy -i DiskOS.img kernel.bin ::
 
 kernel.bin: $(KERNEL_FILES) libdisk.a
-	ld -melf_i386 -Tlinker.ld $^ -o $@
+#	ld -melf_i386 -Tlinker.ld $^ -o $@
+	gcc $(GCC-LD_FLAGS) -Tlinker.ld $^ -o $@
 	@size=$$(($$(wc -c < kernel.bin)));\
 	echo "%define KERNEL_SECTORS" "$$(printf '0x%02X' $$((size / 512)))" > src/bootloader/sizes.inc;
 
 stage3.bin: $(3RD_STAGE_FILES) libdisk.a
-	ld -melf_i386 -Tstage3.ld $^ -o $@
+#	ld -melf_i386 -Tstage3.ld $^ -o $@
+	gcc $(GCC-LD_FLAGS) -Tstage3.ld $^ -o $@
 	@size=$$(($$(wc -c < stage3.bin)));\
 	echo "%define STAGE3_SECTORS" "$$(printf '0x%02X' $$((size / 512)))" >> src/bootloader/sizes.inc;
 

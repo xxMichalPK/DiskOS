@@ -45,6 +45,7 @@ void *allocate_page(pt_entry *page)
         // Map page to block
         SET_FRAME(page, (physical_address)block);
         SET_ATTRIBUTE(page, PTE_PRESENT);
+        SET_ATTRIBUTE(page, PTE_READ_WRITE);
     }
 
     return block;
@@ -57,6 +58,7 @@ void free_page(pt_entry *page)
     if (address) free_blocks((uint32_t*)address, 1);
 
     CLEAR_ATTRIBUTE(page, PTE_PRESENT);
+    CLEAR_ATTRIBUTE(page, PTE_READ_WRITE);
 }
 
 // Set the current page directory
@@ -125,6 +127,7 @@ void unmap_page(void *virt_address)
 
     SET_FRAME(page, 0);     // Set physical address to 0 (effectively this is now a null pointer)
     CLEAR_ATTRIBUTE(page, PTE_PRESENT); // Set as not present, will trigger a #PF
+    CLEAR_ATTRIBUTE(page, PTE_READ_WRITE);
 }
 
 // Initialize virtual memory manager
