@@ -13,12 +13,13 @@ extern "C" __attribute__ ((section(".krn_entry"))) void kMain(void) {
                           "--   Github:  https://github.com/xxMichalPk/   --\n\r\n\r";
     const char* prompt = "diOS:> ";
 
-    //initKernel();
-    vbe->gfx_mode = (vbe_mode_info_t*)0x5000;
-    vbe->sysFont = (ASM_FONT*)0x1000;
+    initKernel();
 
-    //vbe->PlotPixel(0,0,0xFFFFFFFF);
-    vbe->TriangleDraw(Point {0, 0}, Point { 140, 0 }, Point {70, 140}, 0xFFFF2299);
+    vbe_mode_info_t* info2 = (vbe_mode_info_t*)0x5000;
+    uint32_t* fb2 = (uint32_t*)info2->physical_base_pointer;
+    for (uint32_t i = info2->x_resolution*60; i < info2->y_resolution*(info2->x_resolution-120); i++) {
+        fb2[i] = 0xFFFF22BB;
+    }
     // Info for unhandled functions:
     /*puts("[ "); fgColor = 0xFFFF8800; puts("ERR INFO"); fgColor = 0xFFFFFFFF; puts(" ] Interrupts are not supported!\n\r");
     puts("[ "); fgColor = 0xFFFF8800; puts("ERR INFO"); fgColor = 0xFFFFFFFF; puts(" ] No Keyboard driver!\n\r");

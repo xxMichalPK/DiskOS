@@ -64,6 +64,8 @@ extern "C" __attribute__ ((section(".st3_entry"))) void st3_main() {
     disablePIC();
     remapPIC();
 
+    __asm__ __volatile__ ("sti;");
+
     // Load kernel file here!!
     load_file((uint8_t*)"KERNEL  BIN", 11, KERNEL_ADDRESS, ext);
     //////////////////////////
@@ -114,8 +116,8 @@ void printPhysicalMemory()
     SMAP_entry_t *SMAP_entry = (SMAP_entry_t *)(MMAP_ADDRESS + 4);
     for (uint32_t i = 0; i < num_entries; i++) {
         printf("[ *** ] Region: 0x%02x", i);
-        printf(": base: 0x%llx", SMAP_entry->base_address);
-        printf(" length: 0x%llx", SMAP_entry->length);
+        printf(": base: 0x%x", SMAP_entry->base_address);
+        printf(" length: 0x%x", SMAP_entry->length);
         printf(" type: 0x%x", SMAP_entry->type);
         switch(SMAP_entry->type) {
             case 1:
@@ -138,7 +140,7 @@ void printPhysicalMemory()
         SMAP_entry++;
     }
     SMAP_entry--;
-    printf("[ *** ] Total memory: 0x%llx", (SMAP_entry->base_address + SMAP_entry->length - 1));
+    printf("[ *** ] Total memory: 0x%x", (SMAP_entry->base_address + SMAP_entry->length - 1));
     printf("\n\r[ *** ] Total 4KB blocks: %x", max_blocks);
     printf("\n\r[ *** ] Used or reserved blocks: %x", used_blocks);
     printf("\n\r[ *** ] Free or available blocks: %x", max_blocks - used_blocks);

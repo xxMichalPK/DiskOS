@@ -58,31 +58,27 @@ __attribute__ ((interrupt)) void double_fault_handler(int_frame_t* int_frame, ui
     Cursor = {0,0};
     fgColor = 0xFF000000;
     puts("DOUBLE FAULT DETECTED!\n\r");
-    puts("ERROR CODE: 0x");
-    printf("%X", errorCode);
+    printf("ERROR CODE: 0x%x", errorCode);
     while (1) { __asm__ volatile ("cli; hlt"); }
 }
 
 __attribute__ ((interrupt)) void invalid_tss_handler(int_frame_t* int_frame, uint32_t errorCode) {
     fgColor = 0xFFFF0000;
-    puts("\n\rINVALID TSS - CODE: 0x");
-    printf("%X", errorCode);
+    printf("\n\rINVALID TSS - CODE: 0x%x", errorCode);
     fgColor = 0xFFFFFFFF;
     int_frame->eip += 4;
 }
 
 __attribute__ ((interrupt)) void segment_not_present_handler(int_frame_t* int_frame, uint32_t errorCode) {
     fgColor = 0xFFFF0000;
-    puts("\n\rSEGMENT NOT PRESENT - CODE: 0x");
-    printf("%X", errorCode);
+    printf("\n\rSEGMENT NOT PRESENT - CODE: 0x%x", errorCode);
     fgColor = 0xFFFFFFFF;
     int_frame->eip += 4;
 }
 
 __attribute__ ((interrupt)) void stack_segment_fault_handler(int_frame_t* int_frame, uint32_t errorCode) {
     fgColor = 0xFFFF0000;
-    puts("\n\rSTACK SEGMENT FAULT - CODE: 0x");
-    printf("%X", errorCode);
+    printf("\n\rSTACK SEGMENT FAULT - CODE: 0x%x", errorCode);
     fgColor = 0xFFFFFFFF;
     int_frame->eip += 4;
 }
@@ -90,8 +86,7 @@ __attribute__ ((interrupt)) void stack_segment_fault_handler(int_frame_t* int_fr
 __attribute__ ((interrupt)) void general_protection_fault_handler(int_frame_t* int_frame, uint32_t errorCode) {
     Cursor = { 0, 0 };
     fgColor = 0xFFFF0000;
-    puts("GENERAL PROTECTION FAULT - CODE: 0x");
-    printf("%X", errorCode);
+    printf("GENERAL PROTECTION FAULT - CODE: 0x%x", errorCode);
     fgColor = 0xFFFFFFFF;
     int_frame->eip += 4;
 }
@@ -99,7 +94,19 @@ __attribute__ ((interrupt)) void general_protection_fault_handler(int_frame_t* i
 __attribute__ ((interrupt)) void page_fault_handler(int_frame_t* int_frame, uint32_t errorCode) {
     Cursor = { 0, 0 };
     fgColor = 0xFFFF0000;
-    puts("PAGE FAULT - CODE: 0x");
-    printf("%X", errorCode);
+    uint32_t faultingAddr = 0;
+    __asm__ __volatile__ ("movl %%cr2, %%eax; movl %%eax, %0;" : "=r"(faultingAddr));
+    printf("PAGE FAULT AT 0x%x - CODE: 0x%x", faultingAddr, errorCode);
+    puts("\n\r( ");
+    if ((1 & (errorCode >> 0))) puts("Page present - "); else puts("Page not present - ");
+    if ((1 & (errorCode >> 1))) puts("Write error - "); else puts("Read error - ");
+    if ((1 & (errorCode >> 2))) puts("Caused by user - "); else puts("Caused by supervisor process - ");
+    
+    if ((1 & (errorCode >> 3))) puts("Reserved write - ");
+    if ((1 & (errorCode >> 4))) puts("Instruction Fetch - ");
+    if ((1 & (errorCode >> 5))) puts("Protection key - ");
+    if ((1 & (errorCode >> 6))) puts("Shadow stack - ");
+    if ((1 & (errorCode >> 15))) puts("Software Guard Extensions - ");
+    puts(" )");
     while (1) { __asm__ volatile ("cli; hlt"); }
 }

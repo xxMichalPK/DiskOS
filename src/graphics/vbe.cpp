@@ -13,7 +13,6 @@ void VBE::PlotPixel(uint32_t x, uint32_t y, uint32_t color) {
     *(uint32_t*)(gfx_mode->physical_base_pointer + (x*bpp) + (y * gfx_mode->x_resolution * bpp)) = color;
 }
 
-
 void VBE::LineDraw(Point start, Point end, uint32_t color) {
     int16_t deltaX = abs((end.X - start.X));    // Delta X, change in X values, positive absolute value
     int16_t deltaY = -abs((end.Y - start.Y));   // Delta Y, change in Y values, negative absolute value
@@ -37,7 +36,6 @@ void VBE::LineDraw(Point start, Point end, uint32_t color) {
         }
     }
 }
-
 
 void VBE::TriangleDraw(Point vertex0, Point vertex1, Point vertex2, uint32_t color) {
     LineDraw(vertex0, vertex1, color);

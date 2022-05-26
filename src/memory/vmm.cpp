@@ -37,6 +37,7 @@ pt_entry *get_page(const virtual_address address)
     return page;
 }
 
+
 // Allocate a page of memory
 void *allocate_page(pt_entry *page) 
 {
@@ -181,7 +182,7 @@ bool initialize_virtual_memory_manager(void)
         table->entries[PT_INDEX(virt)] = page;
     }
 
-    pd_entry *entry = &dir->entries[PD_INDEX(0xC0000000)];
+    pd_entry *entry = &dir->entries[PD_INDEX(0xC0100000)];
     SET_ATTRIBUTE(entry, PDE_PRESENT);
     SET_ATTRIBUTE(entry, PDE_READ_WRITE);
     SET_FRAME(entry, (physical_address)table); // 3GB directory entry points to default page table
