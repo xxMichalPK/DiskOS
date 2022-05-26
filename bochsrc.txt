@@ -1,7 +1,7 @@
 romimage: file="/usr/share/bochs/BIOS-bochs-legacy"
 vgaromimage: file="/usr/share/bochs/VGABIOS-lgpl-latest"
 megs: 128
-floppya: 1_44=OS.bin, status=inserted
-#ata0-master: type=disk, mode=flat, path=OS.bin, translation=none
+#floppya: 1_44=OS.bin, status=inserted
+ata0-master: type=disk, mode=flat, path=DiskOS.img, translation=none
 display_library: sdl2
-boot: a
+boot: disk
