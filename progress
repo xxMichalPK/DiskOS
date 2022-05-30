@@ -1,5 +1,4 @@
 #!/bin/bash
-
 getColor() {
   case "$1" in
     black) color="0;30m";;
@@ -19,47 +18,45 @@ character=■
 granularity=50
 append_numeric_after_progressbar=true
 
-if [ -p /dev/stdin ]; then
-  value=$(cat /dev/stdin | tr -d % | tr -d '\n')
-else
-  value=$(echo $1 | tr -d %)
+while getopts 'c:' OPT ${@:2}; do
+  case "$OPT" in
+    "c") color=$(getColor $OPTARG) ;;
+  esac
+done
+
+value=$(echo $1 | tr -d %)
+value=${value%.*}
+
+let step_size=100/$granularity
+let num_of_progress_items=$value/$step_size
+
+if [ "$color" ]
+then
+  printf $color
 fi
 
-#dd if=/dev/zero of=DiskOS.img bs=512 count=93750 status=progress  | grep 'bytes' | awk '{print $1}'
+printf "Progress: "
+printf '|'
+for i in $(seq 0 $granularity)
+do
+  [[ $i -le $num_of_progress_items ]] && printf "$character" || printf ' '
+done  
 
-#for (( value = 0; value <= 100; value++)) do
-  let step_size=100/$granularity
-  let num_of_progress_items=$value/$step_size
+printf ' |'
 
-  if [ "$color" ]
-  then
-    printf $color
-  fi
-
-  printf "Progress: "
-  printf '|'
-  for i in $(seq 0 $granularity)
+if [ "$allow_more_than_max" = true ] && [ $num_of_progress_items -gt $granularity ]
+then
+  let num_of_excess_items=$num_of_progress_items-$granularity
+  for i in $(seq 1 $num_of_excess_items)
   do
-    [[ $i -le $num_of_progress_items ]] && printf "$character" || printf ' '
+    printf $character
   done  
+fi
 
-  printf '|'
+if $append_numeric_after_progressbar
+then
+  printf ' %d%%' ${value%.*}
+fi 
 
-  if [ "$allow_more_than_max" = true ] && [ $num_of_progress_items -gt $granularity ]
-  then
-    let num_of_excess_items=$num_of_progress_items-$granularity
-    for i in $(seq 1 $num_of_excess_items)
-    do
-      printf $character
-    done  
-  fi
-
-  if $append_numeric_after_progressbar
-  then
-    printf ' %d%%' $value
-  fi 
-
-  eval "tput sgr0" # reset color
-  echo -ne "\r"
-#done
-#echo
+eval "tput sgr0" # reset color
+echo -ne "\r"

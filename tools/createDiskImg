@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# PARSE ARGS
+while getopts b:c: flag
+do
+    case "${flag}" in
+        b) dbs=${OPTARG};;
+        c) dcount=${OPTARG};;
+    esac
+done
+
+#dd if=/dev/zero of=DiskOS.img bs=$dbs count=$dcount status=progress 2>&1 | grep 'bytes' | awk -v dcount=$dcount -v dbs=$dbs '{ cmd="./progress "$1 / dcount / dbs * 100; system(cmd)}'
+dd if=/dev/zero of=DiskOS.img bs=$dbs count=$dcount status=progress 2>&1 | grep 'bytes' | awk {} &
+strace -xx -p $(pgrep -n dd) -s9999 -e write 2>&1 | ./tools/parse_strace.rb 2 $dbs $dcount
+./progress 100 -c green
+echo

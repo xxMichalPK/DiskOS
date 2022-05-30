@@ -50,7 +50,7 @@ run: link
 link: kernel.bin stage3.bin $(BOOT_FILES) $(2ND_STAGE_FILES)
 	@cp $(BOOT_FILES) ./tmpboot.bin
 	@echo [Creating disk image...]
-	@dd if=/dev/zero of=DiskOS.img bs=512 count=93750 2>&1 | grep 'bytes'
+	@sudo ./tools/createDiskImg -b 512 -c 93750
 	@echo [Formatting as FAT32...]
 	@mkdosfs -F 32 DiskOS.img
 	@echo [Copying bootloader to disk image...]
